@@ -971,7 +971,9 @@ mod tests {
         let names = ["日本語"; 6];
         let mut bar = TabBar::default();
         bar.clients.insert(1, client_with_named_tabs(&names, 0));
-        let composed = bar.compose_line(40, 1, None).unwrap();
+        // 32 columns for the tabs, whatever the prefix is.
+        let prefix_width = zellij_tile::graphemes::display_width(PREFIX_TEXT);
+        let composed = bar.compose_line(32 + prefix_width, 1, None).unwrap();
         let total: usize = composed.line.iter().map(|part| part.len).sum();
         assert_eq!(total, rendered_width(&composed.line));
         let joined: String = composed
@@ -980,7 +982,6 @@ mod tests {
             .map(|part| strip_ansi(&part.part))
             .collect();
         assert!(joined.contains("+3"));
-        let prefix_width = zellij_tile::graphemes::display_width(PREFIX_TEXT);
         let tab_width = 8;
         assert!(composed.regions.contains(&(
             prefix_width,
